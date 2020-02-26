@@ -1,0 +1,25 @@
+-- Top Slow Queries by Execution Count
+SELECT
+    d.digest_text AS query,
+    s.db,
+    s.full_scan,
+    s.rows_examined_avg,
+    s.avg_latency,
+    s.total_latency,
+    s.exec_count,
+    s.last_seen
+FROM
+    sys.`x$statements_with_runtimes_in_95th_percentile` s
+        INNER JOIN
+    performance_schema.events_statements_summary_by_digest d ON s.digest = d.digest
+WHERE
+    d.schema_name IS NOT NULL
+        AND d.digest_text NOT LIKE '%SHOW%'
+        AND d.digest_text NOT LIKE '%`information_schema`%'
+        AND d.digest_text NOT LIKE '%`performance_schema`%'
+        AND d.digest_text NOT LIKE '%`sys`%'
+        AND d.digest_text NOT LIKE '%sys_version%'
+        AND d.digest_text NOT LIKE '%OBJECT_SCHEMA%'
+        AND d.digest_text NOT LIKE '%trx_wait_started%'
+        AND d.digest_text NOT LIKE '%SYSTEM_USER%'
+ORDER BY exec_count DESC , last_seen DESC;
