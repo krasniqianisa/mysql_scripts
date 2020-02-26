@@ -1,0 +1,22 @@
+-- Get Statements doing Full Table Scans by Execution Count
+SELECT
+    d.digest_text AS query,
+    s.db,
+    s.exec_count,
+    s.total_latency,
+    s.no_index_used_pct,
+    s.last_seen
+FROM sys.statements_with_full_table_scans s
+    INNER JOIN performance_schema.events_statements_summary_by_digest d
+    ON s.digest = d.digest
+WHERE
+    d.schema_name IS NOT NULL
+    AND d.digest_text NOT LIKE '%SHOW%'
+    AND d.digest_text NOT LIKE '%`information_schema`%'
+    AND d.digest_text NOT LIKE '%`performance_schema`%'
+    AND d.digest_text NOT LIKE '%`sys`%'
+    AND d.digest_text NOT LIKE '%sys_version%'
+    AND d.digest_text NOT LIKE '%OBJECT_SCHEMA%'
+    AND d.digest_text NOT LIKE '%trx_wait_started%'
+    AND d.digest_text NOT LIKE '%SYSTEM_USER%'
+ORDER BY exec_count DESC, last_seen DESC;
