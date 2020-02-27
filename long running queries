@@ -1,0 +1,23 @@
+-- Longest running tables
+SELECT digest_text
+     , ROUND(SUM(timer_end-timer_start)/1000000000, 1) AS tot_exec_ms
+     , ROUND(SUM(timer_end-timer_start)/1000000000/COUNT(*), 1) AS avg_exec_ms
+     , ROUND(MIN(timer_end-timer_start)/1000000000, 1) AS min_exec_ms
+     , ROUND(MAX(timer_end-timer_start)/1000000000, 1) AS max_exec_ms
+     , ROUND(SUM(timer_wait)/1000000000, 1) AS tot_wait_ms
+     , ROUND(SUM(timer_wait)/1000000000/COUNT(*), 1) AS avg_wait_ms
+     , ROUND(MIN(timer_wait)/1000000000, 1) AS min_wait_ms
+     , ROUND(MAX(timer_wait)/1000000000, 1) AS max_wait_ms
+     , ROUND(SUM(lock_time)/1000000000, 1) AS tot_lock_ms
+     , ROUND(SUM(lock_time)/1000000000/COUNT(*), 1) AS avglock_ms
+     , ROUND(MIN(lock_time)/1000000000, 1) AS min_lock_ms
+     , ROUND(MAX(lock_time)/1000000000, 1) AS max_lock_ms
+     , MIN(LEFT(DATE_SUB(NOW(), INTERVAL (isgs.VARIABLE_VALUE - TIMER_START*10e-13) second), 19)) AS first_seen
+     , MAX(LEFT(DATE_SUB(NOW(), INTERVAL (isgs.VARIABLE_VALUE - TIMER_START*10e-13) second), 19)) AS last_seen
+     , COUNT(*) as cnt
+  FROM performance_schema.events_statements_history_long
+  JOIN performance_schema.global_status AS isgs
+ WHERE isgs.variable_name = 'UPTIME'
+ GROUP BY LEFT(digest_text,64)
+ ORDER BY tot_exec_ms DESC
+;
