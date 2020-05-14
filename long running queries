@@ -1,4 +1,4 @@
--- Longest running tables
+-- Longest running queries
 SELECT digest_text
      , ROUND(SUM(timer_end-timer_start)/1000000000, 1) AS tot_exec_ms
      , ROUND(SUM(timer_end-timer_start)/1000000000/COUNT(*), 1) AS avg_exec_ms
