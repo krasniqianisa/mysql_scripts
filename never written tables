@@ -1,6 +1,6 @@
 -- Tables that exist only for reading and are never written to
 
-SELECT t.table_schema, t.table_name, t.table_rows, tio.count_read, tio.count_write
+SELECT t.table_schema, t.table_name, t.table_rows, tio.count_read, tio.count_write, t.create_time, t.update_time
   FROM information_schema.tables AS t
   JOIN performance_schema.table_io_waits_summary_by_table AS tio
     ON tio.object_schema = t.table_schema AND tio.object_name = t.table_name
